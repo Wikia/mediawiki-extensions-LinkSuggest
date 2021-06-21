@@ -29,11 +29,13 @@ class LinkSuggest {
 	 * @return bool
 	 */
 	public static function onGetPreferences( $user, array &$preferences ) {
-		$preferences['disablelinksuggest'] = array(
-			'type' => 'toggle',
-			'section' => 'editing/advancedediting',
-			'label-message' => 'tog-disablelinksuggest',
-		);
+		if ( !\Fandom\Includes\Skins\SkinHelper::isFandomDesktop() ) {
+			$preferences['disablelinksuggest'] = array(
+				'type' => 'toggle',
+				'section' => 'editing/advancedediting',
+				'label-message' => 'tog-disablelinksuggest',
+			);
+		}
 		return true;
 	}
 
@@ -47,7 +49,7 @@ class LinkSuggest {
 	 */
 	public static function onEditPage( EditPage $editPage, OutputPage $output ) {
 		global $wgUser;
-		if ( $wgUser->getOption( 'disablelinksuggest' ) != true ) {
+		if ( $wgUser->getOption( 'disablelinksuggest' ) != true && !\Fandom\Includes\Skins\SkinHelper::isFandomDesktop() ) {
 			// Load CSS and JS by using ResourceLoader
 			$output->addModules( 'ext.LinkSuggest' );
 		}
