@@ -29,7 +29,7 @@ class LinkSuggest {
 	 * @return bool
 	 */
 	public static function onGetPreferences( $user, array &$preferences ) {
-		if ( !self::isFandomDesktop() ) {
+		if ( !\Fandom\Includes\Skins\SkinHelper::isFandomDesktop() ) {
 			$preferences['disablelinksuggest'] = array(
 				'type' => 'toggle',
 				'section' => 'editing/advancedediting',
@@ -49,7 +49,7 @@ class LinkSuggest {
 	 */
 	public static function onEditPage( EditPage $editPage, OutputPage $output ) {
 		global $wgUser;
-		if ( $wgUser->getOption( 'disablelinksuggest' ) != true && !self::isFandomDesktop() ) {
+		if ( $wgUser->getOption( 'disablelinksuggest' ) != true && !\Fandom\Includes\Skins\SkinHelper::isFandomDesktop() ) {
 			// Load CSS and JS by using ResourceLoader
 			$output->addModules( 'ext.LinkSuggest' );
 		}
@@ -190,28 +190,5 @@ class LinkSuggest {
 		}
 
 		return str_replace( '_', ' ', $title );
-	}
-
-	public static function isFandomDesktop() {
-		return self::getSkinName() === 'fandomdesktop';
-	}
-
-	public static function getSkinName() {
-		$context = RequestContext::getMain();
-
-		// Avoid attempting to initialize an user from session data in a context where this is not appropriate
-		// (MAIN-23971)
-		if ( $context->getUser()->isSafeToLoad() ) {
-			return $context->getSkin()->getSkinName();
-		}
-
-		$isResourceLoader = isset( $_SERVER['SCRIPT_NAME'] ) && substr( $_SERVER['SCRIPT_NAME'], -8 ) == 'load.php';
-		$skinParam = $context->getRequest()->getVal( 'skin' );
-
-		if ( $isResourceLoader && !empty( $skinParam ) ) {
-			return $skinParam;
-		}
-
-		return $context->getConfig()->get( 'DefaultSkin' );
 	}
 }
